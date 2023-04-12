@@ -1,9 +1,19 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://neva.today/"],
+    "headers": {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "accept-encoding": "gzip, deflate, br",
+"accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+"cache-control": "max-age=0",
+"cookie": " _temp_region=RU-MOW; _ym_uid=1678728011353983244; _ym_d=1678728011; tmr_lvid=d834599a299042b97af2ffb1fa84a49a; tmr_lvidTS=1678728010972; _ga=GA1.2.1455201959.1678728011; _gid=GA1.2.1363323834.1681068432; _ym_isad=2; _ym_visorc=w; tmr_detect=0%7C1681144775173; XSRF-TOKEN=eyJpdiI6IjBDR3I3WkdvZWtNTzk3YllrSjR6Rmc9PSIsInZhbHVlIjoiV2ltbzU2cklGWURaSGR2M3BDRzVoeG1UY0JVWjZqNlNTYm8vS0RqNjMrSVdlSGNYOGtPVVd1cGJZaEFHTGRiMWxISmNidytjY2toSS9zQllJQjZyWTY1K3JKbXRyckFyaWRNckUyTFJHdjRpVWJuM3hSczdRTUF6c0xlOGxTMkYiLCJtYWMiOiJmYmFkM2IzZDRkMjk5OGFkYmM5MDIwZTRjYzE5M2RmMzRiMTczZmI2MTg0ZjVkN2UxZTE1MDU4NTBjZTA4MmUwIiwidGFnIjoiIn0%3D; nevatoday_session=eyJpdiI6IkNUaVpGSitib2F5TU14RWxwcE5vbXc9PSIsInZhbHVlIjoiM3dWK0lCYWhtbFl5VC84cnQ1SVVlUUhENkp1SlpEeVVRS3FuU0lUaTg2b0QvR1QycVdmdkFPU3NtYU9wU0V0REFFVnEyUkkzMUROUFc5U3ZPbjRXQ1VodFpmVElNU04vZ2ZJdmtoaUo2MkE3a2pwWWVQR3FRejFBdVNuWUh1TTUiLCJtYWMiOiI4NGZkMzA5YWNhZGUyNjFiNDIwMDUwYjI5ZTU3OTFlYTNkMjIwZGEwNzk1YWNhNTFiMGE4OGY5OGFiYTQzMjgyIiwidGFnIjoiIn0%3D",
+"sec-fetch-dest": "document",
+"sec-fetch-mode": "navigate",
+"sec-fetch-site": "same-origin",
+"sec-fetch-user": "?1",
+"upgrade-insecure-requests": "1",
+"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+},
+    "total_articles_to_find_and_parse": 10,
+    "encoding": "utf-8",
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
