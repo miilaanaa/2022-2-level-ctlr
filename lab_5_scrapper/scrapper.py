@@ -7,8 +7,6 @@ import random
 import re
 import shutil
 import time
-from typing import List
-from article import Article
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -257,25 +255,8 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        # get id from article tag
-        article.id = article_soup['id']
 
-        # get title from h1 tag inside article tag
-        title_elem = article_soup.find('h1', {'class': 'page-main__head'})
-        article.title = title_elem.text.strip() if title_elem else "NOT FOUND"
 
-        # get author(s) from a tag(s) inside article tag
-        author_elem = article_soup.find('a', {'class': 'page-main__publish-author global-link'})
-        article.authors = [author_elem.text.strip()] if author_elem else ["NOT FOUND"]
-
-        # get date from a tag inside article tag
-        date_elem = article_soup.find('a', {'class': 'page-main__publish-date'})
-        date_str = date_elem.text.strip() if date_elem else "NOT FOUND"
-        article.date = self.unify_date_format(date_str)
-
-        # get topic from a tag(s) inside article tag
-        topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})[1]
-        article.topics = topic_elem.text.strip() if topic_elem else "NOT FOUND"
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
