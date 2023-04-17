@@ -17,8 +17,7 @@ import core_utils.constants as const
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
+from core_utils.constants import (NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
