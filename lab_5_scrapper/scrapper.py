@@ -3,6 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
+import os
 import random
 import re
 import shutil
@@ -12,7 +13,7 @@ from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
-
+import core_utils.constants as const
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
@@ -194,7 +195,8 @@ class Crawler:
         self.urls = []
         self._seed_urls = self.config.get_seed_urls()
 
-    def _extract_url(self, article_bs: BeautifulSoup) -> str:
+    @staticmethod
+    def _extract_url(article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
@@ -255,49 +257,44 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-
-
+        article = article_soup.find('div', {'itemprop': 'headline'})
+        article_title = article.find('h1')
+        self.article.title = article_title.text
+        article_authors = article_soup.find_all('span',
+                                                {'itemprop': 'author'})[0].find('meta', itemprop='name')
+        authors = article_authors.get('content')
+        if authors:
+            self.article.author = [authors]
+        else:
+            self.article.author = ['NOT FOUND']
+        try:
+            article_tags = article_soup.find('ul', {'itemprop': 'keywords'})
+            article_tags_li = article_tags.find_all('li')
+            self.article.topics = [tag.text.replace('"', '&quot;')
+                                   for tag in article_tags_li]
+        except IndexError:
+            self.article.topics = []
+        article_date = article_soup.find('meta', {'itemprop': 'datePublished'}).get('content')
+        if isinstance(article_date, str):
+            self.article.date = self.unify_date_format(article_date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        months = {
-            "января": "january",
-            "февраля": "february",
-            "марта": "march",
-            "апреля": "april",
-            "мая": "may",
-            "июня": "june",
-            "июля": "july",
-            "августа": "august",
-            "сентября": "september",
-            "октября": "october",
-            "ноября": "november",
-            "декабря": "december"
-        }
-        for rus_month, en_month in months.items():
-            date_str = date_str.replace(rus_month, en_month)
-        try:
-            result = datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
-            if result:
-                return result
-        except ValueError:
-            pass
-        return datetime.datetime.now()
+        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
-        response = requests.get(self.full_url,
-                                headers=self.config.get_headers(),
-                                timeout=self.config.get_timeout())
-        response.encoding = self.config.get_encoding()
-        b_s = BeautifulSoup(response.text, 'lxml')
-        self._fill_article_with_text(b_s)
-        self._fill_article_with_meta_information(b_s)
-        return self.article
+        page = make_request(self.full_url, self._config)
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.text, "html.parser")
+            self._fill_article_with_text(soup)
+            self._fill_article_with_meta_information(soup)
+            return self.article
+        return False
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -306,26 +303,85 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     if base_path.exists():
         shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+    os.makedirs(base_path)
+
+
+class CrawlerRecursive(Crawler):
+    """
+     Recursive Crawler implementation
+    """
+
+    def __init__(self, config: Config) -> None:
+        super().__init__(config)
+        self.count_of_page = 1
+        self._config = config
+        self.url = config.get_seed_urls()[0]
+        self.load_info_from_file()
+
+    def load_info_from_file(self) -> None:
+        """
+        Download information from a file
+        """
+        current_path = Path(__file__)
+        crawler_data_path = current_path.parent / 'crawler_recursive_data.json'
+        if crawler_data_path.exists():
+            with open('crawler_recursive_data.json', 'r', encoding='utf-8') as infile:
+                data = json.load(infile)
+                self.count_of_page = data['count_of_page']
+                self.urls = data['urls']
+
+    def save_data_in_file(self) -> None:
+        """
+        Saving information into the file
+        """
+        data = {
+            'count_of_page': self.count_of_page,
+            'urls': self.urls
+        }
+        with open('crawler_recursive_data.json', 'w', encoding='utf-8') as outfile:
+            json.dump(data, outfile, ensure_ascii=True, indent=2)
+
+    def find_articles(self) -> None:
+        """
+        Find articles
+        """
+        url = f"{self.url}?PAGEN_1={self.count_of_page}"
+        page = make_request(url, self._config)
+        soup = BeautifulSoup(page.text, "html.parser")
+        for elem in soup.find_all('a', class_='main-block-item'):
+            href = self._extract_url(elem)
+            if not href:
+                continue
+            current_url = self.url + href
+            if current_url in self.urls:
+                continue
+            self.urls.append(current_url)
+            self.save_data_in_file()
+            if len(self.urls) >= self._config.get_num_articles():
+                return
+
+        self.count_of_page += 1
+        self.find_articles()
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
-    prepare_environment(ASSETS_PATH)
-
-    crawler = Crawler(config=config)
+    config = Config(const.CRAWLER_CONFIG_PATH)
+    prepare_environment(const.ASSETS_PATH)
+    crawler = Crawler(config)
     crawler.find_articles()
-
-    for i, url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(full_url=url, article_id=i, config=config)
+    for id_, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(full_url=url, article_id=id_, config=config)
         article = parser.parse()
-
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
+            article = parser.parse()
+            if isinstance(article, Article):
+                to_raw(article)
+                to_meta(article)
 
 
 if __name__ == "__main__":
