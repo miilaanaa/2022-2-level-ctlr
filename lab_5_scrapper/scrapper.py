@@ -255,21 +255,19 @@ class HTMLParser:
         """
         Finds text of article
         """
-        texts_tag = article_soup.find_all("p")
-        final_text = [text.get_text(strip=True) for text in texts_tag]
-        self.article.text = "\n".join(final_text)
+        text_elements = article_soup.select("div.article-text p")
+        self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        # get title from h1 tag inside article tag
         title_elem = article_soup.find('h1')
         if title_elem:
             self.article.title = title_elem.text.strip()
         topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})
         if topic_elem:
-            self.article.topics.append(topic_elem.text.strip())
+            self.article.topics.append(topic_elem.strip.text())
         date_elem = article_soup.find('a', {'class': 'page-main__publish-date'})
         if date_elem:
             self.article.date = self.unify_date_format(date_elem.text.strip())
