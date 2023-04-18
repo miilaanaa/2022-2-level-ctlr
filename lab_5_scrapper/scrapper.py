@@ -3,6 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
+from typing import List
 import random
 import re
 import shutil
@@ -263,13 +264,42 @@ class HTMLParser:
         """
         Finds meta information of article
         """
+        # get title from h1 tag inside article tag
+        title_elem = article_soup.find('h1')
+        if title_elem:
+            self.article.title = title_elem.text.strip()
+        topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})
+        if topic_elem:
+            self.article.topics.append(topic_elem.text.strip())
+        date_elem = article_soup.find('a', {'class': 'page-main__publish-date'})
+        if date_elem:
+            self.article.date = self.unify_date_format(date_elem.text.strip())
 
     @staticmethod
     def unify_date_format(date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        months = {
+            'января': 'January',
+            'февраля': 'February',
+            'марта': 'March',
+            'апреля': 'April',
+            'мая': 'May',
+            'июня': 'June',
+            'июля': 'July',
+            'августа': 'August',
+            'сентября': 'September',
+            'октября': 'October',
+            'ноября': 'November',
+            'декабря': 'December',
+        }
+        date_list = date_str.split()
+        date_list[2] = months.get(date_list[2])
+        if len(date_list) == 3:
+            date_list.append('2023')
+        new_date = ' '.join(date_list)
+        return datetime.datetime.strptime(new_date, '%H:%M %d %B %Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
