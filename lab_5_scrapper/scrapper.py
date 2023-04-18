@@ -279,26 +279,7 @@ class HTMLParser:
         """
         Unifies date format
         """
-        months = {
-            'января': 'January',
-            'февраля': 'February',
-            'марта': 'March',
-            'апреля': 'April',
-            'мая': 'May',
-            'июня': 'June',
-            'июля': 'July',
-            'августа': 'August',
-            'сентября': 'September',
-            'октября': 'October',
-            'ноября': 'November',
-            'декабря': 'December',
-        }
-        date_list = date_str.split()
-        date_list[2] = months.get(date_list[2])
-        if len(date_list) == 3:
-            date_list.append('2023')
-        new_date = ' '.join(date_list)
-        return datetime.datetime.strptime(new_date, '%H:%M %d %B %Y')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
 
     def parse(self) -> Union[Article, bool, list]:
         """
