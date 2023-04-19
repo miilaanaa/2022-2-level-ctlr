@@ -248,45 +248,50 @@ class HTMLParser:
         """
         self.full_url = full_url
         self.article_id = article_id
-        self.config = config
+        self._config = config
         self.article: Article = Article(full_url, article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        text_elements = article_soup.select("div.article-text p")
-        self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
+        main_text = article_soup.find('div', {
+            'itemprop': 'articleBody'})
+        paragraphs = main_text.find_all('p')
+        if paragraphs:
+            self.article.text = '\n'.join([p.get_text(strip=True) for p in paragraphs])
+        else:
+            text_str = main_text.get_text(strip=True)
+            self.article.text = text_str
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title_elem = article_soup.find('h1')
-        if title_elem:
-            self.article.title = title_elem.text.strip()
-        topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})
-        if topic_elem:
-            self.article.topics.append(topic_elem.strip.text())
-        date_elem = article_soup.find('a', {'class': 'page-main__publish-date'})
-        if date_elem:
-            self.article.date = self.unify_date_format(date_elem.text.strip())
+        title = article_soup.find('h1', {
+            'itemprop': 'headline'})
+        self.article.title = title.text.strip() if title else "NOT FOUND"
+
+        date_bs = article_soup.find('time', {'class': 'big-item-date'})
+        date_elements = date_bs.find_all('time')
+        date_joined = ' '.join([date_element.text for date_element in date_elements])
+        self.article.date = self.unify_date_format(date_joined)
 
     @staticmethod
     def unify_date_format(date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        return datetime.datetime.strptime(date_str, '%d/%m/%Y %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
-        response = make_request(self.full_url, self.config)
-        main_bs = BeautifulSoup(response.text, "lxml")
-        self._fill_article_with_text(main_bs)
-        self._fill_article_with_meta_information(main_bs)
+        response = make_request(self.full_url, self._config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
@@ -303,22 +308,18 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config=configuration)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    crawler = Crawler(config=config)
     crawler.find_articles()
 
-    for identification, url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(
-            full_url=url,
-            article_id=identification,
-            config=configuration
-        )
-        article = parser.parse()
-
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+    for i, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=config)
+        if i <= config.get_num_articles():
+            text = parser.parse()
+            if isinstance(text, Article):
+                to_raw(text)
+                to_meta(text)
 
 
 if __name__ == "__main__":
