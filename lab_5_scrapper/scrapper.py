@@ -288,10 +288,11 @@ class HTMLParser:
 
             self.article.author = authors_arr if authors_arr else ['NOT FOUND']
 
-        date = article_soup.find('div', {'class': 'article-info-item'}).find('b')
+        date = article_soup.find('div', {'class': 'article-info-item'}).text
 
         if date:
-            self.article.date = self.unify_date_format(date.text)
+            self.article.date = self.unify_date_format(date.split())
+
         topics_arr = []
 
         topics_a = article_soup.find_all('a', {'class': 'article-tags-link'})
@@ -299,29 +300,29 @@ class HTMLParser:
         for topic in topics_a:
             topics_arr.append(topic.text)
 
-            self.article.topics = ', '.join(topics_arr)
+            self.article.topics = topics_arr
 
     @staticmethod
-    def unify_date_format(date_str: str) -> datetime.date:
+    def unify_date_format(self, date_arr: list) -> datetime.datetime:
         """
         Unifies date format
         """
         months_dict = {
-            "января": "January",
-            "февраля": "February",
-            "марта": "March",
-            "апреля": "April",
-            "мая": "May",
-            "июня": "June",
-            "июля": "July",
-            "августа": "August",
-            "сентября": "September",
-            "октября": "October",
-            "ноября": "November",
-            "декабря": "December"
+            "января": "01",
+            "февраля": "02",
+            "марта": "03",
+            "апреля": "04",
+            "мая": "05",
+            "июня": "06",
+            "июля": "07",
+            "августа": "08",
+            "сентября": "09",
+            "октября": "10",
+            "ноября": "11",
+            "декабря": "12"
         }
-        date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
-        return datetime.datetime.strptime(date_str, '%d %B %Y')
+        date_str = '-'.join([date_arr[2], months_dict[date_arr[1]], date_arr[0], date_arr[3]])
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d-%H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
