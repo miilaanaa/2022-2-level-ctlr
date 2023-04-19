@@ -302,7 +302,7 @@ class HTMLParser:
             self.article.topics = ', '.join(topics_arr)
 
     @staticmethod
-    def unify_date_format(self, date_str: str) -> datetime.date:
+    def unify_date_format(date_str: str) -> datetime.date:
         """
         Unifies date format
         """
