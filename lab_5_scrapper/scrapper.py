@@ -216,7 +216,10 @@ class Crawler:
         """
         href = article_bs.get('href')
 
-        return href if href else "NOT FOUND"
+        if href:
+            return str(href)
+
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -260,8 +263,8 @@ class HTMLParser:
         Finds text of article
         """
         title = article_soup.find('div', {'class': 'article-title'}).text
-        article = article_soup.find('div', {'class': 'article-title'}).text
-        self.article.title = title if title else "NOT FOUND"
+
+        self.article.title = title
 
         text_arr = []
 
@@ -283,15 +286,17 @@ class HTMLParser:
         for author in authors:
             authors_arr.append(author.find('span', {'itemprop': 'name'}).text)
 
-            self.article.author = authors_arr if authors_arr else "NOT FOUND"
+            self.article.author = authors_arr if authors_arr else ['NOT FOUND']
 
         date = article_soup.find('div', {'class': 'article-info-item'}).find('b')
-        self.article.date = self.unify_date_format(date.text) if date else "NOT FOUND"
+
+        if date:
+            self.article.date = self.unify_date_format(date.text)
         topics_arr = []
 
-        topics = article_soup.find_all('a', {'class': 'article-tags-link'})
+        topics_a = article_soup.find_all('a', {'class': 'article-tags-link'})
 
-        for topic in topics:
+        for topic in topics_a:
             topics_arr.append(topic.text)
 
             self.article.topics = ', '.join(topics_arr)
