@@ -227,7 +227,7 @@ class Crawler:
         """
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml')
+            article_bs = BeautifulSoup(response.text, 'html.parser')
             if response.status_code == 200:
                 for elem in article_bs.find_all('a', class_='tape-list-item'):
                     if len(self.urls) >= self._config.get_num_articles():
@@ -262,45 +262,39 @@ class HTMLParser:
         """
         Finds text of article
         """
-        title = article_soup.find('div', {'class': 'article-title'}).text
-
-        self.article.title = title
-
-        text_arr = []
 
         text_paragraphs = article_soup.find('div', {'class': 'article-text'}).find_all('p')
 
-        for paragraph in text_paragraphs:
-            text_arr.append(paragraph.text)
+        final_text = [text.get_text(strip=True) for text in text_paragraphs]
 
-            self.article.text = ', '.join(text_arr) if text_arr else "NOT FOUND"
+        self.article.text = "\n".join(final_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        authors_arr = []
+
+        titles = article_soup.find('div', {'class': 'article-title'}).text
+
+        if titles:
+            self.article.title = titles.strip()
 
         authors = article_soup.find_all('p', {'class': 'article-author'})
 
         for author in authors:
-            authors_arr.append(author.find('span', {'itemprop': 'name'}).text)
+            author_name = author.find('span', {'itemprop': 'name'})
+            if author_name:
+                self.article.author = author_name.text.strip()
 
-            self.article.author = authors_arr if authors_arr else ['NOT FOUND']
-
-        date = article_soup.find('div', {'class': 'article-info-item'}).text
-
+        date = article_soup.find('div', {'class': 'article-info-item'}).text.strip()
         if date:
             self.article.date = self.unify_date_format(date.split())
 
-        topics_arr = []
-
         topics_a = article_soup.find_all('a', {'class': 'article-tags-link'})
-
         for topic in topics_a:
-            topics_arr.append(topic.text)
-
-            self.article.topics = topics_arr
+            topic_text = topic.text.strip()
+            if topic_text:
+                self.article.topics.append(topic_text)
 
     def unify_date_format(self, date_arr: list) -> datetime.datetime:
         """
@@ -328,7 +322,7 @@ class HTMLParser:
         Parses each article
         """
         response = make_request(self.full_url, self.config)
-        article_soup = BeautifulSoup(response.text, 'lxml')
+        article_soup = BeautifulSoup(response.text, 'html.parser')
         self._fill_article_with_text(article_soup)
         self._fill_article_with_meta_information(article_soup)
         return self.article

@@ -9,6 +9,10 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 
 # pylint: disable=too-few-public-methods
+class EmptyDirectoryError(Exception):
+    pass
+
+
 class CorpusManager:
     """
     Works with articles and stores them
@@ -18,11 +22,23 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._validate_dataset()
+        self._storage = {}
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError(f"Path {self.path_to_raw_txt_data} does not exist")
+
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError(f"{self.path_to_raw_txt_data} is not a directory")
+
+        if not any(self.path_to_raw_txt_data.iterdir()):
+            raise EmptyDirectoryError(f"{self.path_to_raw_txt_data} is empty")
 
     def _scan_dataset(self) -> None:
         """
