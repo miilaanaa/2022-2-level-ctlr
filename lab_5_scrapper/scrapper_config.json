@@ -1,32 +1,6 @@
 {
     "seed_urls": [
-        "https://neva.today/",
-        "https://neva.today/tape/2",
-        "https://neva.today/tape/3",
-        "https://neva.today/tape/4",
-        "https://neva.today/tape/5",
-        "https://neva.today/tape/6",
-        "https://neva.today/tape/7",
-        "https://neva.today/tape/8",
-        "https://neva.today/tape/9",
-        "https://neva.today/tape/10",
-        "https://neva.today/tape/11",
-        "https://neva.today/tape/12",
-        "https://neva.today/tape/13",
-        "https://neva.today/tape/14",
-        "https://neva.today/tape/15",
-        "https://neva.today/tape/16",
-        "https://neva.today/tape/17",
-        "https://neva.today/tape/18",
-        "https://neva.today/tape/19",
-        "https://neva.today/tape/20",
-        "https://neva.today/tape/21",
-        "https://neva.today/tape/22",
-        "https://neva.today/tape/23",
-        "https://neva.today/tape/24",
-        "https://neva.today/tape/25"
-
-
+        "https://neva.today/"
     ],
     "headers": {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
