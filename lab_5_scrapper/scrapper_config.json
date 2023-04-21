@@ -1,10 +1,10 @@
 {
     "seed_urls": [
-        "https://neva.today/tape",
-        "https://neva.today/tape/2",
-        "https://neva.today/tape/3",
-        "https://neva.today/tape/4",
-        "https://neva.today/tape/5"
+        "https://neva.today/?page=1",
+        "https://neva.today/?page=2",
+        "https://neva.today/?page=3",
+        "https://neva.today/?page=4",
+        "https://neva.today/?page=5"
     ],
     "headers": {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
