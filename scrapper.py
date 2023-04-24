@@ -229,7 +229,7 @@ class Crawler:
             response = make_request(seed_url, self._config)
             article_bs = BeautifulSoup(response.text, 'html.parser')
             if response.status_code == 200:
-                for elem in article_bs.find_all('a', class_='tape-list-item'):
+                for elem in article_bs.find_all('a', class_='tapenews-list-item'):
                     if len(self.urls) >= self._config.get_num_articles():
                         return
                     article_url = self._extract_url(elem)
@@ -284,7 +284,7 @@ class HTMLParser:
         for author in authors:
             author_name = author.find('span', {'itemprop': 'name'})
             if author_name:
-                self.article.author = author_name.text.strip()
+                self.article.author.append(author_name.text.strip())
 
         date = article_soup.find('div', {'class': 'article-info-item'}).text.strip()
         if date:
@@ -296,7 +296,8 @@ class HTMLParser:
             if topic_text:
                 self.article.topics.append(topic_text)
 
-    def unify_date_format(self, date_arr: list) -> datetime.datetime:
+    @staticmethod
+    def unify_date_format(date_arr: list) -> datetime.datetime:
         """
         Unifies date format
         """
@@ -388,7 +389,6 @@ class CrawlerRecursive(Crawler):
             self.all_urls.append(url)
             if url in relevant_urls:
                 self.urls.append(url)
-                print(url)
             self.start_url = url
             self._save_crawler_data()
             self.find_articles()
