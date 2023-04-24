@@ -14,5 +14,5 @@
     "encoding": "utf-8",
     "timeout": 10,
     "should_verify_certificate": true,
-    "headless_mode": true
+    "headless_mode": false
 }
