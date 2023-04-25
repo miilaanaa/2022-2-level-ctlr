@@ -265,9 +265,9 @@ class HTMLParser:
 
         text_paragraphs = article_soup.find('div', {'class': 'article-text'}).find_all('p')
 
-        final_text = [text.get_text(strip=True) for text in text_paragraphs]
+        final_texts = [text.get_text(strip=True) for text in text_paragraphs]
 
-        self.article.text = "\n".join(final_text)
+        self.article.text = "\n".join(final_texts)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -426,7 +426,7 @@ def main_recursive() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
-            to_meta(article) # article
+            to_meta(article)
 
 
 if __name__ == "__main__":
