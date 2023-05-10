@@ -10,7 +10,16 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 # pylint: disable=too-few-public-methods
 class EmptyDirectoryError(Exception):
-    pass
+    """
+    Raises when directory is empty
+    """
+
+
+class InconsistentDatasetError(Exception):
+    """
+    Raises when IDs contain slips, number of meta and
+     raw files is not equal, files are empty
+    """
 
 
 class CorpusManager:
@@ -31,6 +40,8 @@ class CorpusManager:
         """
         Validates folder with assets
         """
+        articles_raw = self._path_to_raw_txt_data.glob('*_raw.txt')
+
         if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError(f"Path {self.path_to_raw_txt_data} does not exist")
 
@@ -39,6 +50,14 @@ class CorpusManager:
 
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError(f"{self.path_to_raw_txt_data} is empty")
+
+        raw_list = [file for file in articles_raw]
+        if not all([file.stat().st_size for file in raw_list]):
+            raise InconsistentDatasetError
+
+        id_list = [int(file.name[:file.name.index('_')]) for file in raw_list]
+        if sorted(id_list) != list(range(1, len(id_list) + 1)):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
