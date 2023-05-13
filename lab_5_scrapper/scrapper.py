@@ -430,5 +430,8 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
+    if conf.get_headless_mode():
         main_recursive()
+    else:
+        main()
 
