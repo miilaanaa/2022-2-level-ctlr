@@ -227,7 +227,7 @@ class Crawler:
         """
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text, 'html.parser')
+            article_bs = BeautifulSoup(response.text, 'lxml')
             if response.status_code == 200:
                 for elem in article_bs.find_all('a', class_='tapenews-list-item'):
                     if len(self.urls) >= self._config.get_num_articles():
