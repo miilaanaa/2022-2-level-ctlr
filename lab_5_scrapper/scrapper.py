@@ -227,7 +227,7 @@ class Crawler:
         """
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml')
+            article_bs = BeautifulSoup(response.text, 'html.parser')
             if response.status_code == 200:
                 for elem in article_bs.find_all('a', class_='tapenews-list-item'):
                     if len(self.urls) >= self._config.get_num_articles():
@@ -265,9 +265,9 @@ class HTMLParser:
 
         text_paragraphs = article_soup.find('div', {'class': 'article-text'}).find_all('p')
 
-        final_texts = [text.get_text(strip=True) for text in text_paragraphs]
+        final_text = [text.get_text(strip=True) for text in text_paragraphs]
 
-        self.article.text = "\n".join(final_texts)
+        self.article.text = "\n".join(final_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -376,7 +376,7 @@ class CrawlerRecursive(Crawler):
         Finds articles
         """
         res = make_request(self.start_url, self._config)
-        soup = BeautifulSoup(res.content, 'html.parser')
+        soup = BeautifulSoup(res.content, 'lxml')
 
         relevant_urls = [*map(self._extract_url, soup.find_all('a', class_=(
             'tape-list-item', 'small-mix-item', 'small-line-item')))]
