@@ -376,7 +376,7 @@ class CrawlerRecursive(Crawler):
         Finds articles
         """
         res = make_request(self.start_url, self._config)
-        soup = BeautifulSoup(res.content, 'lxml')
+        soup = BeautifulSoup(res.content, 'html.parser')
 
         relevant_urls = [*map(self._extract_url, soup.find_all('a', class_=(
             'tape-list-item', 'small-mix-item', 'small-line-item')))]
@@ -430,7 +430,5 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
-    if conf.get_headless_mode():
         main_recursive()
-    else:
-        main()
+

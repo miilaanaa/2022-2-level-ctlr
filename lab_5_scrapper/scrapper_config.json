@@ -10,9 +10,9 @@
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         "Cookie": "_sm_uid=37b25817-265a-4cf2-96b5-34debe9bbb36; _sm_udt=1651268342813; _ym_uid=1664322335875700583; _ym_d=1664322335; clk=0H4sIAAAAAAAA_-NiaV36ixUAPwDUfgYAAAA; _sm_sid=bd2dceff-9df3-4771-b245-7afef9e525a0; nid=ads5-2smir11"
     },
-    "total_articles_to_find_and_parse": 100,
+    "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
     "timeout": 10,
     "should_verify_certificate": true,
-    "headless_mode": false
+    "headless_mode": true
 }
